@@ -32,6 +32,27 @@
         }
 
     }
+
+    .nooutput {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    } 
+
+    .nooutputw {
+        width: 100%;
+        height: 100%;
+    }
+
+    .loading {
+        text-align: center;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 40%;
+    }
 }
 .comparewrapper {
     width: 100%;
@@ -60,4 +81,10 @@
     overflow-y:scroll;
     height:300px;
     display:block;   
+}
+
+.output {
+    color: white;
+    maxHeight: 100%;
+    overflow: auto
 }

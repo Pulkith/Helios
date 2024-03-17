@@ -1,9 +1,10 @@
 import replicate
 import os
 from sglang import function, system, user, assistant, gen, set_default_backend, OpenAI
-from hello import functionToTest
+# from hello import functionToTest
+from uploads.file import functionToTest
 
-def run():
+def run_analysis():
     def convert_py_file_to_raw_string(file_path):
         with open(file_path, 'r') as file:
             python_code = file.read()
@@ -11,15 +12,14 @@ def run():
         # Escape double quotes and add "<s>" character
         escaped_code = python_code.replace('"', r'\"')
         formatted_code = f"<s>```{escaped_code.strip()}```"
-
+        
         return formatted_code
 
 
     # Example usage
-
     os.environ['REPLICATE_API_TOKEN'] = 'r8_NwOiblx7ASfvm2CPlElD0yUf9llNlEB2IbmRn'
 
-    python_file_path = "file.py"
+    python_file_path = "uploads/file.py"
     raw_string_output = convert_py_file_to_raw_string(python_file_path)
     #print(repr(raw_string_output))
 
@@ -59,10 +59,13 @@ def run():
     # Print the list of tuples
     #print(pairs)
 
+    # return data
 
 
     def exploit(questions=[('', ''), ('', '')]):
         def convert_py_to_txt(input_file, output_file):
+            input_file = "/Users/pulkith/Desktop/Development/Helios/backend/uploads/file.py"
+            output_file = "/Users/pulkith/Desktop/Development/Helios/backend/uploads/file.txt"
             try:
                 with open(input_file, 'r') as f_in:
                     py_code = f_in.read()
@@ -73,6 +76,7 @@ def run():
                 print("Error: File not found.")
 
         def convert_txt_to_string(file_path):
+            file_path = "/Users/pulkith/Desktop/Development/Helios/backend/uploads/file.txt"
             try:
                 with open(file_path, "r") as file:
                     file_contents = file.read()
@@ -87,7 +91,8 @@ def run():
         def multi_turn_question(s, questions, fileName, inputs, outputs):
             convert_py_to_txt(fileName, fileName.replace(".py", ".txt"))
             fileString = convert_txt_to_string(fileName.replace(".py", ".txt")) + "\n\n"
-
+            # return fileString
+            print(fileString)
             s += system(
                 fileString + "\n Above is a function that we are going to generate input that breaks the function by finding edge cases. Only output a string and no other text as your output will be parsed by an algorithm")
 
@@ -96,10 +101,14 @@ def run():
                     "Generate input to break the function and get an error given that we found that the function would be made better by replacing " + str(
                         questions[i][0]) + " with " + str(
                         questions[i][1]) + " and the last input given to function was " + str(
-                        inputs[i]) + " and the correponding output was " + str(outputs[i]))
+                        inputs[i]))
+                # s += user(
+                # "Generate input to break the function and get an error")
+                s += assistant(gen("answer_" + str(i), max_tokens=256))
+                s += user("Generate input to break the function and get an error")
                 s += assistant(gen("answer_" + str(i), max_tokens=256))
 
-        set_default_backend(OpenAI("gpt-3.5-turbo"))
+        set_default_backend(OpenAI("gpt-3.5-turbo", api_key="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"))
 
         state = multi_turn_question.run(
             questions, "file.py", [''] * len(questions)
@@ -124,10 +133,17 @@ def run():
                     except:
                         print("SUCCESS")
                         print(m["content"])
-                        return m["content"], data
+                        return {
+                            "break": m["content"],
+                            "data": data,
+                        }
                         b = True
                         break
             if b: break
-            state = multi_turn_question.run([('', ''), ('', '')], "file.py", inputs, outputs, temperature=0.8)
+            state = multi_turn_question.run(questions, "file.py", inputs, outputs, temperature=0.8)
+        return {
+            "break": "No Break Found",
+            "data": data,
+        }
 
-    exploit(questions=pairs)
+    return exploit(questions=pairs)
