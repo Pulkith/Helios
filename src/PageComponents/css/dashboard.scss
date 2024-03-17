@@ -1,5 +1,37 @@
 .dashboard-wrapper {
     font-family: googleRegular;
+
+    .contentwrapper {
+        width: 100%;
+
+        .leftc {
+            // width: 50%;
+            // height: 100%;
+            // min-height: 90vh;
+            // display: inline-block;
+            // min-height: 90vh;
+            // width: 50%;
+            
+        }
+
+        .rightc {
+            // width: 45%;
+            // height: 100%;
+            // min-height: 90vh;
+            // display: inline-block;
+            // margin-left: 5%;
+            // min-height: 90vh;
+            // position: absolute;
+            // left: 55%;
+            // width: 45%;
+            // top: 120px;;
+        }
+
+        .pyinput {
+            min-height: 75vh;
+        }
+
+    }
 }
 .comparewrapper {
     width: 100%;

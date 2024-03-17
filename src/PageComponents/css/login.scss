@@ -16,4 +16,22 @@
             display: block;
         }
     }
+
+    .shiftright {
+        margin-top: 5px;;
+    }
+
+    .innershiftright {
+        position: absolute;
+        right: 0;
+        text-decoration: underline;
+        color: rgb(130, 130, 251);
+    } 
+    .right {
+        width: 100%;
+    }
+    .backsign {
+        text-decoration: underline;
+        color: rgb(130, 130, 251);
+    }
 }
