@@ -17,7 +17,7 @@ def run_analysis():
 
 
     # Example usage
-    os.environ['REPLICATE_API_TOKEN'] = 'r8_NwOiblx7ASfvm2CPlElD0yUf9llNlEB2IbmRn'
+    os.environ['REPLICATE_API_TOKEN'] = ''
 
     python_file_path = "uploads/file.py"
     raw_string_output = convert_py_file_to_raw_string(python_file_path)
@@ -108,7 +108,7 @@ def run_analysis():
                 s += user("Generate input to break the function and get an error")
                 s += assistant(gen("answer_" + str(i), max_tokens=256))
 
-        set_default_backend(OpenAI("gpt-3.5-turbo", api_key="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"))
+        set_default_backend(OpenAI("gpt-3.5-turbo", api_key=""))
 
         state = multi_turn_question.run(
             questions, "file.py", [''] * len(questions)
