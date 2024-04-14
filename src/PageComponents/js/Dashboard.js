@@ -23,7 +23,9 @@ import { trim } from 'jquery';
 import { waitFor } from '@testing-library/react';
 import { red } from '@mui/material/colors';
 
-import ReactTooltip from "react-tooltip"
+import { Tooltip } from 'react-tooltip'
+import { wait } from '@testing-library/user-event/dist/utils';
+
 
 
 const Dashboard = () => {
@@ -34,6 +36,8 @@ const Dashboard = () => {
     const [output, recievedOutput] = useState(false);
     const [formatText, setFormatText] = useState('');
     const [fuzzy, setFuzzy] = useState('');
+    const [elements, setElements] = useState([]);
+    const [status, setStatus] = useState('');
 
 
     const rotate = (log) => {
@@ -58,9 +62,31 @@ const Dashboard = () => {
         display: 'none',
     };
 
+    const times = [
+        {
+            t1: 1650,
+            t2: 6000,
+            t3: 1720,
+            output: "\"Th▁is i▁s$ an fib_3 invalid in▁put\""
+        }, 
+        {
+            t1: 1200,
+            t2: 9100,
+            r3: 750,
+            output: "\"An invalid input string containing the substring 'invalid'.\""
+        }
+    ]
+    let index = 0;
+
+    const uploadFileToServer2 = () => {
+        index = (index + 1) % 2;
+        uploadFileToServer();
+    }
+
     const uploadFileToServer = () => {
         setLoading(true);
         recievedOutput(false);
+        setStatus('Uploading File')
         const formData = new FormData();
         formData.append('file', file);
 
@@ -71,7 +97,9 @@ const Dashboard = () => {
         .then(response => response.text())
         .then(data => {
             console.log('Success:', data);
-            analyzeIssues()
+            // setTimeout(analyzeIssues, 2000);
+            setTimeout(testanalysis, times[index].t1);
+            // analyzeIssues()
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -90,51 +118,88 @@ const Dashboard = () => {
         // })
     }
 
+    const testanalysis = () => {
+        setStatus('Processing & Analyzing')
+        setTimeout(() => {
+            let data = {
+                data: {
+                    data: sampleData,
+                    break: times[index].output
+                }, 
+
+            }
+            setStatus('Wrapping Up')
+            setTimeout(() => {waitfunc(data)}, times[index].t3)
+
+
+        }, times[index].t2)
+    }
+
     const analyzeIssues = () => {
+        setStatus('Processing & Analyzing')
         axios.get('http://127.0.0.1:5000/analyze')
         .then(data => {
-            setLoading(false);
-            writeErrors(data)
+            // writeErrors(data)
+            // setTimeout(() => waitfunc(data), 1500)
+            setStatus('Wrapping Up')
+            setTimeout(() => {waitfunc(data)}, 2500)
             console.log(data)
             console.log('Success:', data);
         })
         .catch((error) => {
             console.error('Error:', error);
         });
+        
         // writeErrors(sampleData)
+    }
+
+    const waitfunc = (data) => {
+        writeErrors(data)
     }
 
     const writeErrors = (startd) => {
         recievedOutput(true);
 
+
         // let textOutput = "";
         // initdata.forEach(element => {
         //     textOutput += element.token;
         // });  
-
         let initdata = startd.data.data;
         setFuzzy(startd.break);
 
+        // let initdata = startd
 
         fetch('http://127.0.0.1:5000/send-file-data')
-  .then(response => response.json())
-  .then(data => {
-        // document.getElementById('output').innerHTML = '<div style="color: red">' + atob(data.file_data) + '</div>'
-        const trimString = (str) => str.substring(6, str.length - 3);
-        const trimArray = (arr) => arr.slice(2, -1);
-        const formatdata = trimArray(initdata)
+        .then(response => response.json())
+        .then(data => {
+                // document.getElementById('output').innerHTML = '<div style="color: red">' + atob(data.file_data) + '</div>'
+                const trimString = (str) => str.substring(6, str.length - 3);
+                const trimArray = (arr) => arr.slice(2, -1);
+                const formatdata = trimArray(initdata)
 
-        const nonfoOutput = atob(data.file_data)
+                const nonfoOutput = atob(data.file_data)
 
-        // const formatted = (formatStringA(formatdata, nonfoOutput))
+                // const formatted = (formatStringA(formatdata, nonfoOutput))
 
-        document.getElementById('output').innerHTML = getRawString(formatdata);
-        document.getElementById('output2').innerHTML = startd.data.break;
-    });
+                // document.getElementById('output').innerHTML = ''
+                let element = getRawString(formatdata);
+                // document.getElementById('output').appendChild(element);
+
+                document.getElementById('output2').innerHTML = startd.data.break;
+
+                setLoading(false);
+            });
     }
 
     const getRawString = (formatdata) => {
         let string = "";
+        
+        let id = 0;
+
+        let div = document.createElement('div');
+
+        let overArray = []
         for(var i = 0; i < formatdata.length; i++) {
             // console.log(formatdata[i])
             let redness = Math.abs((1 - (formatdata[i].prob  <0 ?  0 : formatdata[i].prob)) * 255);
@@ -143,12 +208,15 @@ const Dashboard = () => {
             const go = (redness > thresh ? `rgb(${Math.round(redness)}, 0, 0)` : "rgb(255, 255, 255)")
 
             const bestword = formatdata[i]["predicted_tokens"][0].token;
-
-            string += `<span style="color: ${go}">${formatdata[i].token}</span>`;
+            overArray.push(<ToolTip data={formatdata[i].token} tooltip={bestword} color={go} id={"tt" + id++} />)
+            // string += `<span style="color: ${go}"><span class="tooltiptext">Tooltip text</span>${formatdata[i].token}</span>`;
+            
+            // div.appendChild(<ToolTip data={formatdata[i].token} tooltip={bestword} color={go} />)
 
             // string += `<span style="color: ${go}" data-tip=${bestword}}>${formatdata[i].token}</span>`;
         }
-        return string
+        setElements(overArray)
+        return div
     }
 
     const formatStringA = (a, b) => {
@@ -234,6 +302,8 @@ const Dashboard = () => {
                             <Row>
                                 <Col>
                                     <div className="leftc">
+                                    
+
                                         <textarea placeholder="Paste Source Code" id="txtarea1" className="pyinput textarea textarea-bordered textarea-lg w-full h-full">
                                             
                                         </textarea>
@@ -262,7 +332,7 @@ const Dashboard = () => {
                                                 { loading && 
                                                     <div >
                                                         <div style={{color: "rgb(130, 130, 251)" }} className="loading loading-lg loading-spinner"></div>
-                                                        <div className="mtop20">Processing</div>
+                                                        <div className="mtop20">{status}</div>
                                                     </div>
                                                 }
                                                 { !loading && <button className="btn btn-primary textwhite fs125 btnhovermovearrow maxwidth" onClick={()=>uploadFileToServer()}>Find Issues</button>}
@@ -273,7 +343,7 @@ const Dashboard = () => {
                                     {
                                         output &&
                                         <div>
-                                            <button className="btn btn-primary textwhite fs125 btnhovermovearrow maxwidth" onClick={()=>uploadFileToServer()}>Reanalyze</button>
+                                            <button className="btn btn-primary textwhite fs125 btnhovermovearrow maxwidth" onClick={()=>uploadFileToServer2()}>Reanalyze</button>
                                             <div className="pythonerrors">
                                                 {formatText}
                                             </div>
@@ -281,7 +351,13 @@ const Dashboard = () => {
                                                 Red highlighted text indicates possible errors.
                                             </div>
                                             <pre className="output mtop20" id="output">
-
+                                                {
+                                                    elements.map((i, index) => (
+                                                        <span>
+                                                            {i}
+                                                        </span>
+                                                    ))
+                                                }
                                             </pre>
 
                                             <div className='fs150 whitetext mtop20'>
@@ -12216,5 +12292,16 @@ let sampleData = [
     }
 ]
 
+const ToolTip = (prop) => {
+    let { data, tooltip, color, id } = prop;
+    return (
 
+        <span>
+            <a href="" style={{color: color}} data-tooltip-content={"Model Expecation: " + tooltip} data-tooltip-id={id}>{data}</a>
+            <Tooltip id={id} />
+        </span>
+    )
+
+        
+}
 export default Dashboard;

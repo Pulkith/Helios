@@ -17,7 +17,7 @@ def run_analysis():
 
 
     # Example usage
-    os.environ['REPLICATE_API_TOKEN'] = ''
+    os.environ['REPLICATE_API_TOKEN'] = 'r8_NwOiblx7ASfvm2CPlElD0yUf9llNlEB2IbmRn'
 
     python_file_path = "uploads/file.py"
     raw_string_output = convert_py_file_to_raw_string(python_file_path)
@@ -101,14 +101,14 @@ def run_analysis():
                     "Generate input to break the function and get an error given that we found that the function would be made better by replacing " + str(
                         questions[i][0]) + " with " + str(
                         questions[i][1]) + " and the last input given to function was " + str(
-                        inputs[i]))
+                        inputs[i])) + ". Provide only the input to break the function, and nothing else. Include the output in qoutation marks."
                 # s += user(
                 # "Generate input to break the function and get an error")
                 s += assistant(gen("answer_" + str(i), max_tokens=256))
                 s += user("Generate input to break the function and get an error")
                 s += assistant(gen("answer_" + str(i), max_tokens=256))
 
-        set_default_backend(OpenAI("gpt-3.5-turbo", api_key=""))
+        set_default_backend(OpenAI("gpt-3.5-turbo", api_key="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"))
 
         state = multi_turn_question.run(
             questions, "file.py", [''] * len(questions)

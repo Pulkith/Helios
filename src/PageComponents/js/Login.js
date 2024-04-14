@@ -117,7 +117,7 @@ const Login = () => {
                                     </div>
 
                                     <div className="centerwrapper">
-                                        <div className="textwhite fs150 mtop20 backsign" onclick={() => setloginstate('login') }>Go back to Sign In</div>
+                                    <button className="btn btn-primary textwhite fs125 mtop20 btnhovermovearrow right" onClick={() => setloginstate('login')}>Back to Login <EastIcon className="movearrowright" /></button>
                                     </div>
                                 </div>
                             </div>
